@@ -8,6 +8,8 @@ const sendChatBtn = document.getElementById('send-chat-btn');
 const messageContainer = document.querySelector('.message-container');
 
 let currentUser;
+// Get the online users from the server
+socket.emit('get online users');
 
 btn.addEventListener('click', (e)=> {
   if (username.value.length > 0) {
@@ -47,3 +49,18 @@ socket.on('new message', (data) => {
     </div>
   `
 })
+
+socket.on('get online users', (onlineUsers) => {
+  console.log("getting users")
+  for (user in onlineUsers) {
+    usersOnline.innerHTML += `<div class="user-online">${user}</div>`
+  }
+})
+
+//Refresh the online user list
+socket.on('user has left', (onlineUsers) => {
+  usersOnline.innerHTML = ""
+  for (user in onlineUsers) {
+    usersOnline.innerHTML += `<div class="user-online">${user}</div>`
+  }
+});
