@@ -6,6 +6,8 @@ const mainContainer = document.querySelector('.main-container');
 const usersOnline = document.querySelector('.users-online');
 const sendChatBtn = document.getElementById('send-chat-btn');
 const messageContainer = document.querySelector('.message-container');
+const newChannelBtn = document.getElementById('new-channel-btn');
+const newChannelInput = document.getElementById('new-channel-input')
 
 let currentUser;
 // Get the online users from the server
@@ -64,3 +66,13 @@ socket.on('user has left', (onlineUsers) => {
     usersOnline.innerHTML += `<div class="user-online">${user}</div>`
   }
 });
+
+
+newChannelBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  let channelName = newChannelInput.value;
+  if (channelName.length > 0) {
+    socket.emit('new channel', channelName);
+    newChannelInput.value = "";
+  }
+})
