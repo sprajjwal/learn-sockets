@@ -14,6 +14,14 @@ const channelCurrent = document.querySelector('.channel-current')
 let currentUser;
 // Get the online users from the server
 socket.emit('get online users');
+//Each user should be in the general channel by default.
+socket.emit('user changed channel', "General");
+
+//Users can change the channel by clicking on its name.
+$(document).on('click', '.channel', (e)=>{
+  let newChannel = e.target.textContent;
+  socket.emit('user changed channel', newChannel);
+});
 
 btn.addEventListener('click', (e)=> {
   if (username.value.length > 0) {
@@ -27,13 +35,15 @@ btn.addEventListener('click', (e)=> {
 
 sendChatBtn.addEventListener('click', (e)=> {
   e.preventDefault();
-  let message = document.getElementById('chat-input')
+  let message = document.getElementById('chat-input');
+  let currChannel = document.querySelector('.channel-current').textContent
   console.log("message", message.value)
   if(message.value.length > 0){
     // Emit the message with the current user to the server
     socket.emit('new message', {
       sender : currentUser,
       message : message.value,
+      channel: currChannel
     });
     message.value = ""
   }
@@ -46,12 +56,16 @@ socket.on('new user', (username) => {
 })
 
 socket.on('new message', (data) => {
-  messageContainer.innerHTML += `
-    <div class="message">
-      <p class="message-user">${data.sender}: </p>
-      <p class="message-text">${data.message}</p>
-    </div>
-  `
+  let currChannel = document.querySelector('.channel-current').textContent
+  if (currChannel === data.channel) {
+    messageContainer.innerHTML += `
+      <div class="message">
+        <p class="message-user">${data.sender}: </p>
+        <p class="message-text">${data.message}</p>
+      </div>
+    `
+  }
+  
 })
 
 socket.on('get online users', (onlineUsers) => {
