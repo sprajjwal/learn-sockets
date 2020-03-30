@@ -1,4 +1,4 @@
-module.exports = (io, socket, onlineUsers) => {
+module.exports = (io, socket, onlineUsers, channels) => {
 
   // Listen for "new user" socket emits
   socket.on('new user', (username) => {
@@ -33,5 +33,19 @@ module.exports = (io, socket, onlineUsers) => {
   // Adds a new channel
   socket.on('new channel', (newChannel) => {
     console.log(newChannel);
+  })
+
+  socket.on('new channel', (newChannel) => {
+    //Save the new channel to our channels object. The array will hold the messages.
+    channels[newChannel] = [];
+    //Have the socket join the new channel room.
+    socket.join(newChannel);
+    //Inform all clients of the new channel.
+    io.emit('new channel', newChannel);
+    //Emit to the client that made the new channel, to change their channel to the one they made.
+    socket.emit('user changed channel', {
+      channel : newChannel,
+      messages : channels[newChannel]
+    });
   })
 }
